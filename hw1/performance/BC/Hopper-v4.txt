@@ -1,0 +1,14 @@
+Eval_AverageReturn : 1329.7523193359375
+Eval_StdReturn : 478.48529052734375
+Eval_MaxReturn : 1993.3739013671875
+Eval_MinReturn : 883.3682861328125
+Eval_AverageEpLen : 378.6666666666667
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : 0.03620937466621399
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 8.179253101348877
+Initial_DataCollection_AverageReturn : 3717.5129936182307
