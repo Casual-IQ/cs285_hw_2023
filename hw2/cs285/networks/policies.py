@@ -80,7 +80,8 @@ class MLPPolicy(nn.Module):
             mean = self.mean_net(obs)
             std = torch.exp(self.logstd)
             return distributions.Normal(mean, std)
-
+            # return distributions.MultivariateNormal(mean, scale_tril=torch.diag(std))
+            
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
         """Performs one iteration of gradient descent on the provided batch of data."""
         raise NotImplementedError
@@ -101,9 +102,9 @@ class MLPPolicyPG(MLPPolicy):
         advantages = ptu.from_numpy(advantages)
 
         # TODO: implement the policy gradient actor update.
-        distribution = self.forward(obs)
-        log_pi = distribution.log_prob(actions)
-        loss = -(log_pi * advantages).mean()
+        # distribution = self.forward(obs)
+        log_pi = self(obs).log_prob(actions)
+        loss = - (log_pi * advantages.unsqueeze(-1)).mean()
         
         self.optimizer.zero_grad()
         loss.backward()
