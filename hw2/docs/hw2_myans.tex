@@ -132,6 +132,9 @@ The normalization of advantages helps to reduce variance in the policy gradient 
 The larger batch size does make a significant impact, as seen in the large batch experiments where the learning curves are smoother and the final performance is generally better compared to the small batch experiments.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Neural Network Baseline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage\section{Neural Network Baseline}
 \begin{itemize}
     \item Plot a learning curve for the baseline loss.
@@ -140,23 +143,93 @@ The larger batch size does make a significant impact, as seen in the large batch
     \item \textbf{Optional:} Add \verb|-na| back to see how much it improves things. Also, set \verb|video_log_freq 10|, then open TensorBoard and go to the ``Images'' tab to see some videos of your HalfCheetah walking along!
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_loss.png}
+    \caption{Learning curve for the baseline loss}
+    \label{fig:baseline_loss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_return.png}
+    \caption{Learning curve for the baseline return}
+    \label{fig:baseline_return}
+\end{figure}
+% \textbf{Default configurations:}
+In the above experiments, we used the following default command line configurations:
+\begin{lstlisting}[language=bash]
+python cs285/scripts/run_hw2.py --env_name HalfCheetah-v4 \
+-n 100 -b 5000 -rtg --discount 0.95 -lr 0.01 \
+--use_baseline -blr 0.01 -bgs 5 --exp_name cheetah_baseline
+\end{lstlisting}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_bgs_loss.png}
+    \caption{Baseline loss in different baseline gradient steps}
+    \label{fig:baseline_loss_bgs}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_bgs_return.png}
+    \caption{Baseline return in different baseline gradient steps}
+    \label{fig:baseline_return_bgs}
+\end{figure}
+We try different baseline gradient steps 5, 10, and 50.
+The results show that increasing the number of baseline gradient steps leads to a more stable and smaller curve for the baseline loss,
+and the performance of the policy improves as well, achieving a higher average return.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_vs_na_return.png}
+    \caption{Learning curve for the baseline return}
+    \label{fig:baseline_vs_na_return}
+\end{figure}
+Compared to the deafult settings, adding \verb|-na| (normalization) leads to a more stable learning curve and better performance of the policy, achieving a higher average return. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Generalized Advantage Estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage\section{Generalized Advantage Estimation}
 \begin{itemize}
     \item Provide a single plot with the learning curves for the \verb|LunarLander-v2| experiments that you tried. Describe in words how $\lambda$ affected task performance. The run with the best performance should achieve an average score close to 200 (180+).
     \item Consider the parameter $\lambda$. What does $\lambda = 0$ correspond to? What about $\lambda = 1$? Relate this to the task performance in \verb|LunarLander-v2| in one or two sentences.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/GAE_return.png}
+    \caption{GAE Learning curve for the baseline return}
+    \label{fig:GAE_return}
+\end{figure}
+
+$\lambda = 0$: Corresponds to using only the immediate rewards at each timestep (ignoring future rewards), effectively disabling Generalized Advantage Estimation (GAE). This results in lower bias but higher variance in advantage estimation, which may lead to unstable training.
+
+$\lambda = 1$: Corresponds to fully incorporating future rewards (similar to Monte Carlo methods), using complete GAE. This reduces variance but introduces higher bias, potentially slowing down convergence.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Hyperparameter Tuning
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage\section{Hyperparameter Tuning}
 \begin{enumerate}
     \item Provide a set of hyperparameters that achieve high return on \verb|InvertedPendulum-v4| in as few environment steps as possible.
     \item Show learning curves for the average returns with your hyperparameters and with the default settings, with environment steps on the $x$-axis. Returns should be averaged over 5 seeds.
 \end{enumerate}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Humanoid
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage\section{(Extra Credit) Humanoid}
 \begin{enumerate}
     \item Plot a learning curve for the Humanoid-v4 environment. You should expect to achieve an average return of at least 600 by the end of training. Discuss what changes, if any, you made to complete this problem (for example: optimizations to the original code, hyperparameter changes, algorithmic changes).
 \end{enumerate}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage\section{Analysis}
 \label{sec:analysis}
 Consider the following infinite-horizon MDP:
