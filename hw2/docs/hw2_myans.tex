@@ -178,9 +178,30 @@ python cs285/scripts/run_hw2.py --env_name HalfCheetah-v4 \
     \caption{Baseline return in different baseline gradient steps}
     \label{fig:baseline_return_bgs}
 \end{figure}
-We try different baseline gradient steps 5, 10, and 50.
+
+We try different baseline gradient steps $5$, $10$, and $50$.
 The results show that increasing the number of baseline gradient steps leads to a more stable and smaller curve for the baseline loss,
 and the performance of the policy improves as well, achieving a higher average return.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_blr_loss.png}
+    \caption{Baseline loss in different baseline learning rates}
+    \label{fig:baseline_loss_blr}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/HalfCheet_baseline_blr_return.png}
+    \caption{Baseline return in different baseline learning rates}
+    \label{fig:baseline_return_blr}
+\end{figure}
+We try different baseline learning rates $0.01$, $0.001$, $0.1$ and $0.5$.
+We observe that slightly increasing the baseline learning rate leads to a more stable and smaller curve for the baseline loss, but the performance of the policy does not improve significantly.
+Meanwhile, a too large baseline learning rate leads to a worse performance of the policy, achieving a lower average return.
+
+
+
 
 \begin{figure}[H]
     \centering
@@ -219,6 +240,8 @@ $\lambda = 1$: Corresponds to fully incorporating future rewards (similar to Mon
     \item Show learning curves for the average returns with your hyperparameters and with the default settings, with environment steps on the $x$-axis. Returns should be averaged over 5 seeds.
 \end{enumerate}
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Humanoid
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,6 +249,13 @@ $\lambda = 1$: Corresponds to fully incorporating future rewards (similar to Mon
 \begin{enumerate}
     \item Plot a learning curve for the Humanoid-v4 environment. You should expect to achieve an average return of at least 600 by the end of training. Discuss what changes, if any, you made to complete this problem (for example: optimizations to the original code, hyperparameter changes, algorithmic changes).
 \end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/Humanoid_Return.png}
+    \caption{GAE Learning curve for the baseline return}
+    \label{fig:Humanoid_return}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Analysis
@@ -258,11 +288,52 @@ Parametrize the policy as stationary (not dependent on time) with a single param
     \textbf{Hint}: to compute $\sum_{k=1}^\infty k\alpha^{k-1}$, you can write:
     \[\sum_{k=1}^\infty k\alpha^{k-1} = \sum_{k=1}^\infty \frac{d}{d\alpha}\alpha^k = \frac{d}{d\alpha}\sum_{k=1}^\infty\alpha^k\]
 
-\textbf{Solution:}
+    \textbf{Solution:}
+
+        $$
+        \nabla J(\theta) = \nabla_{\theta} \left( \sum_{\tau} \pi_{\theta}(\tau) r(\tau) \right) = \sum_{\tau} \pi_{\theta}(\tau) \cdot \nabla_{\theta} \log \pi_{\theta}(\tau) \cdot r(\tau)
+        $$
+
+        Notice that $\pi_{\theta}(\tau) = \theta^k (1 - \theta)$ and $r(\tau) = k$.
+
+        $$
+        \begin{aligned}
+        \nabla J(\theta) 
+        &= \nabla_{\theta} \left( \sum_{\tau} \pi_{\theta}(\tau) r(\tau) \right) \\
+        &= \sum_{\tau} \pi_{\theta}(\tau) \cdot \nabla_{\theta} \log \pi_{\theta}(\tau) \cdot r(\tau) \\
+        % &= \sum_{k=1}^{\infty} \theta^k (1 - \theta) \cdot \nabla_{\theta} \log (\theta^k (1 - \theta)) \cdot k \\
+        &= \sum_{k=1}^{\infty} \theta^k (1 - \theta) \left( \sum_{t=0}^{k} \nabla_{\theta} \log \pi_{\theta}(a_t | s_t) \right) \cdot k \\
+        &= \sum_{k=1}^{\infty} \theta^k (1 - \theta) \left( \sum_{t=0}^{k-1} \frac{1}{\theta} + \frac{1}{1 - \theta} \right) \cdot k \\
+        &= \sum_{k=1}^{\infty} \theta^k (1 - \theta) \left( k \theta^{k-1} - (k+1) \theta^k \right) \cdot \frac{1}{\theta^k (1 - \theta)} \cdot k \\
+        &= \sum_{k=1}^{\infty} \left( k^2 \theta^{k-1} - k(k+1) \theta^k \right) \\
+        &= \sum_{k=1}^{\infty} \left( k^2 \theta^{k-1} - (k+1)^2 \theta^k \right) + \sum_{k=1}^{\infty} (k+1) \theta^k \\
+        &= 1 + \lim_{k \to \infty} (k+1) \theta^k + \frac{\theta}{(1-\theta)^2} + \theta \cdot \frac{1}{1-\theta} \\
+        &= \frac{(1-\theta)^2 + \theta (1-\theta) + \theta}{(1-\theta)^2} \\
+        &= \frac{1}{(1-\theta)^2}
+        \end{aligned}
+        $$
+        
 
     \item \label{exact_gradient} Compute the expected return of the policy $\E_{\tau \sim \pi_\theta} R(\tau)$ directly. Compute the gradient of this expression with respect to $\theta$ and verify that this matches the policy gradient.
+    
+    \textbf{Solution:}
+    
+    $$
+    \begin{aligned}
+    \mathbb{E}_{\pi_{\theta}} R(\tau) &= \sum_{k=1}^{\infty} (k-1) \theta^{k-1} (1-\theta) \\
+    &= \sum_{k=1}^{\infty} k \cdot \theta^k (1-\theta) \\
+    &= \theta (1-\theta) \frac{d}{d\theta} \sum_{k=0}^{\infty} \theta^k \\
+    &= \theta (1-\theta) \frac{d}{d\theta} \frac{1}{1-\theta} \\
+    &= \theta (1-\theta) \cdot \frac{1}{(1-\theta)^2} = \frac{\theta}{1-\theta}
+    \end{aligned}
+    $$
 
-\textbf{Solution:}
+    Verification:
+    $$
+    \nabla_{\theta} \mathbb{E}_{\pi_{\theta}} R(\tau) = \frac{1}{(1-\theta)^2}
+    $$
+
+    The results match the answer in part (a)
 
 \end{enumerate}
 \newpage
@@ -271,17 +342,73 @@ Parametrize the policy as stationary (not dependent on time) with a single param
 \textbf{Hint:}  Once you have it expressed as a sum of terms $P(\theta)/Q(\theta)$ where $P$ and $Q$ are polynomials, you can use a symbolic computing program (Mathematica, SymPy, etc) to simplify to a single rational expression.
 
 \textbf{Solution:}
+    $$
+    \begin{aligned}
+    \text{Var}_{\pi_{\theta}} \left( \nabla_{\theta} J(\theta) \right) 
+    = \mathbb{E}_{\pi_{\theta}} \left[ \left( \nabla_{\theta} \log \pi_{\theta}(\tau) \cdot r(\tau) \right)^2 \right] - \left( \nabla_{\theta} J(\theta) \right)^2 
+    \end{aligned}
+    $$
+
+    $$
+    \begin{aligned}
+    \mathbb{E}_{\pi_{\theta}} \left[ \left( \nabla_{\theta} \log \pi_{\theta}(\tau) \cdot r(\tau) \right)^2 \right]
+    &= \sum_{k=1}^{\infty} \theta^k (1-\theta) \cdot \left( \nabla_{\theta} \log (\theta^k (1-\theta)) \cdot k \right)^2 \\
+    &= \sum_{k=1}^{\infty} \theta^k (1-\theta) \cdot k^2 \left( \frac{k \theta^{k-1} (k+1) \theta^k}{\theta^k (1-\theta)} \right)^2 \\
+    &= \sum_{k=1}^{\infty} \theta^k (1-\theta) \cdot k^2 \left( \frac{k}{\theta} - \frac{1}{1-\theta} \right)^2 \\
+    &= \frac{4\theta^2 + 9\theta + 1}{(\theta-1)^4 \cdot \theta}
+    \end{aligned}
+    $$
+
+    $$
+    \begin{aligned}
+    \text{Var}_{\pi_{\theta}} \left( \nabla_{\theta} J(\theta) \right) &= \frac{4\theta^2 + 9\theta + 1}{(\theta-1)^4 \cdot \theta} - \frac{1}{(1-\theta)^4} \\
+    &= \frac{4\theta^2 + 8\theta + 1}{(\theta-1)^4 \cdot \theta}
+    \end{aligned}
+    $$
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/PG_variance.jpg}
+    \caption{Variance of the policy gradient}
+    \label{fig:PG_variance}
+    \end{figure}
+
+    when $\theta = 0.1098822586019$, the variance is minimal, which is approximately $27.9411449358296$.
+
+    And when $\theta = 0$ or $\theta = 1$, the variance is maximal, which is infinity.
+
 
 \newpage
 \question[sec:analysis3] Apply return-to-go as an advantage estimator.
 \begin{enumerate}
     \item Write the modified policy gradient and confirm that it is unbiased.
-
-\textbf{Solution:}
+    
+    \textbf{Solution:}
+    $$
+    \begin{aligned}
+    J(\theta) &= \sum_{k=1}^{\infty} \theta^k (1-\theta) \left( \sum_{t=0}^{k-1} \left( \frac{1}{\theta} \cdot (k-t) + \frac{1}{1-\theta} \cdot 0 \right) \right) \\
+    &= \sum_{k=1}^{\infty} \theta^k (1-\theta) \cdot \frac{1}{\theta} \cdot \frac{k(k+1)}{2} \\
+    &= \frac{1}{(1-\theta)^2}
+    \end{aligned}
+    $$
 
     \item Compute the variance of the return-to-go policy gradient and plot it on $[0, 1]$ alongside the variance of the original estimator.
 
-\textbf{Solution:}
+    \textbf{Solution:}
+    $$
+    \begin{aligned}
+    \text{Var}(\nabla J(\theta)) &= \mathbb{E}_{\pi_{\theta}} \left( \frac{1}{\theta^2} \cdot \frac{k^2 (k+1)^2}{4} \right) - \frac{1}{(1-\theta)^4} \\
+    &= \sum_{k=0}^{\infty} \theta^k (1-\theta) \cdot \frac{1}{\theta^2} \cdot \frac{k^2 (k+1)^2}{4} - \frac{1}{(1-\theta)^4} \\
+    &= \frac{\theta^2 + 4\theta + 1}{(\theta-1)^4 \cdot \theta} - \frac{1}{(1-\theta)^4} = \frac{(\theta+1)^2}{(\theta-1)^4 \cdot \theta}
+    \end{aligned}
+    $$
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/PG_rtg_variance.jpg}
+    \caption{Variance of retrun-to-go policy}
+    \label{fig:PG_rtg_variance}
+    \end{figure}
 
 \end{enumerate}
 \newpage
@@ -305,11 +432,32 @@ The agent receives reward $\Rmax$ if it arrives at $s_H$ and reward $0$ if it ar
 Using the same policy parametrization as above, consider off-policy policy gradients via importance sampling. Assume we want to compute policy gradients for a policy $\pi_\theta$ with samples drawn from $\pi_{\theta'}$.
 \begin{enumerate}
     \item Write the policy gradient with importance sampling.
+    
+    \textbf{Solution:}
+    $$
+    \begin{aligned}
+    \nabla_{\theta} J(\theta)
+    &= \mathbb{E}_{x \sim p_{\theta}(x)} \left[ \frac{p_{\theta}(x)}{p_{\theta'}(x)} \nabla_{\theta} \log \pi_{\theta}(x) r(x) \right] \\
+    &= \theta'^{H-1} \cdot \frac{\theta^{H-1}}{\theta'^{H-1}} \cdot \sum_{t=1}^{H-1} \nabla_{\theta} \log \pi_{\theta} \log (a_t | s_t) \\
+    &= \theta^{H-1} \cdot \frac{H-1}{\theta} \\
+    &= \theta^{H-2} \cdot (H-1)
+    \end{aligned}
+    $$
 
     \item Compute its variance.
 
-\end{enumerate}
+    
+    \textbf{Solution:}
+    $$
+    \begin{aligned}
+    \text{Var} \left[ \nabla_{\theta} J(\theta) \right] &= \theta^{H-1} \cdot \left( \frac{\theta^{H-1}}{\theta'^{H-1}} \cdot \frac{H-1}{\theta} \right)^2 - \left( \theta^{H-2} \cdot (H-1) \right)^2 \\
+    &= (H-1)^2 \cdot \theta^{2H-4} \cdot \left( \frac{1}{\theta'^{H-1}} - 1 \right) \\
+    &= \frac{(H-1)^2}{\theta^2} \cdot (1 - \theta'^{H-1}) \cdot \left( \frac{\theta^2}{\theta'} \right)^{H-1} \\
+    &\sim \Theta \left( \left( \frac{\theta^2}{\theta'} \right)^{H-1} \right)
+    \end{aligned}
+    $$
 
+\end{enumerate}
 \end{enumerate}
 
 \newpage\section{Survey}
