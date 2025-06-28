@@ -59,7 +59,7 @@ We repeat the steps in \cref{eq:q_target,eq:q_update,eq:policy_improvement} $K$ 
 \subsection{TD-Learning Bias (2 points)}
 \label{q:td_bias}
 
-\def\answer{} % <--- TODO: insert index (0/1) of answer
+\def\answer{2} % <--- TODO: insert index (0/1) of answer
 \ifsolutions\solve\thesubsection\fi
 We say an estimator $f_\D$ of $f$ constructed using data $\D$ sampled from process $P$ is \textit{unbiased} when $\mathbb{E}_{\D\sim P}[f_\D(x)-f(x)]=0$ at each $x$.
 
@@ -95,14 +95,14 @@ Indicate which of the statements \textbf{I-III} always hold in the following cas
 \ifsolutions\solve\thesubsection\else
 \begin{enumerate}
 \item $N=1$ and \ldots \makecols\ncol\heading\choices
-	{} % <--- TODO: select numbers of boxes to fill; e.g., {13} to select I and III
-	{} % <--- TODO: "
+	{13} % <--- TODO: select numbers of boxes to fill; e.g., {13} to select I and III
+	{3} % <--- TODO: "
 \item $N>1$ and \ldots \choices
-	{} % <--- TODO: "
-	{} % <--- TODO: "
+	{13} % <--- TODO: "
+	{3} % <--- TODO: "
 \item In the limit as $N\to\infty$ (no bootstrapping) \ldots \choices
-	{} % <--- TODO: "
-	{} % <--- TODO: "
+	{123} % <--- TODO: "
+	{3} % <--- TODO: "
 \end{enumerate}
 \fi
 
@@ -110,8 +110,8 @@ Indicate which of the statements \textbf{I-III} always hold in the following cas
 \label{q:variance_estimate}
 Which of the three cases ($N = 1$, $N > 1$, $N \to \infty$) would you expect to have the highest-variance estimate of $Q$ for fixed dataset size $B$ in the limit of infinite iterations $k$? Lowest-variance?
 
-\def\highest{} % <--- TODO: insert index of highest variance answer
-\def\lowest{} % <--- TODO: insert index of lowest variance answer
+\def\highest{3} % <--- TODO: insert index of highest variance answer
+\def\lowest{1} % <--- TODO: insert index of lowest variance answer
 \ifsolutions\solve\thesubsection\fi
 \begin{minipage}{0.49\linewidth}
 Highest variance:\smallskip
@@ -135,7 +135,7 @@ Lowest variance:\smallskip
 Now say we want to represent $Q$ via function approximation rather than with a tabular representation. Assume that for any deterministic policy $\pi$ (including the optimal policy $\pi^*$), function approximation can represent the true $Q^\pi$ exactly.
 Which of the following statements are true?
 
-\def\answer{} % <--- TODO: insert index of answer(s)
+\def\answer{234} % <--- TODO: insert index of answer(s)
 \ifsolutions\solve\thesubsection\fi
 \begin{itemize}
     \checkeditem\answer1 When $N = 1$, $Q_{\phi_{k+1}}$ is an unbiased estimate of the $Q$-function of the last policy $Q^{\pi_k}$.
@@ -155,6 +155,15 @@ You may assume that $\pi'$ always assigns positive mass to each action. [Hint: r
 
  
 \ifsolutions\solve\thesubsection\else
+\textbf{Answer:}
+
+we don't need to change \eqref{eq:q_update} when $N=1$, but we do need to change it as $N\to\infty$.
+$$
+\begin{aligned}
+\phi_{k+1} &= \arg\min_\phi \sum_{j,t} \rho_{j,t:t+N-1} \cdot (y_{j,t} - Q_\phi(s_{j,t}, a_{j,t}))^2 \\
+& where  \quad \rho_{j,t:t+N-1} = \prod_{\tau = t}^{t+N-1} \frac{\pi(a_{j,\tau} | s_{j,\tau})}{\pi'(a_{j,\tau} | s_{j,\tau})}
+\end{aligned}
+$$
 % TODO: answer question above
 \fi
 
