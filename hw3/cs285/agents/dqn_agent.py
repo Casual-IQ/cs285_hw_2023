@@ -45,10 +45,11 @@ class DQNAgent(nn.Module):
         """
         Used for evaluation.
         """
-        observation = ptu.from_numpy(np.asarray(observation))[None]
+        observation = ptu.from_numpy(np.asarray(observation)).unsqueeze(0)
 
         # TODO(student): get the action from the critic using an epsilon-greedy strategy
-        action = ...
+        action = torch.randint(0, self.num_actions, (1, )) if np.random.rand() < epsilon else \
+            self.critic(observation).argmax(dim=-1, keepdim=True)
 
         return ptu.to_numpy(action).squeeze(0).item()
 
@@ -66,21 +67,20 @@ class DQNAgent(nn.Module):
         # Compute target values
         with torch.no_grad():
             # TODO(student): compute target values
-            next_qa_values = ...
+            next_qa_values = self.target_critic(next_obs)
 
             if self.use_double_q:
-                raise NotImplementedError
+                next_action = self.critic(next_obs).argmax(dim=-1, keepdim=True)
             else:
-                next_action = ...
+                next_action = next_qa_values.argmax(dim=-1, keepdim=True)
             
-            next_q_values = ...
-            target_values = ...
+            next_q_values = next_qa_values.gather(dim=-1, index=next_action).squeeze(-1)
+            target_values = reward + self.discount * next_q_values * (~done)
 
         # TODO(student): train the critic with the target values
-        qa_values = ...
-        q_values = ... # Compute from the data actions; see torch.gather
-        loss = ...
-
+        qa_values = self.critic(obs)
+        q_values = qa_values.gather(dim=-1, index=action.unsqueeze(-1)).squeeze(-1)  # Compute from the data actions; see torch.gather
+        loss = self.critic_loss(q_values, target_values)
 
         self.critic_optimizer.zero_grad()
         loss.backward()
@@ -114,5 +114,7 @@ class DQNAgent(nn.Module):
         Update the DQN agent, including both the critic and target.
         """
         # TODO(student): update the critic, and the target if needed
-
+        critic_stats = self.update_critic(obs, action, reward, next_obs, done)
+        if step % self.target_update_period == 0:
+            self.update_target_critic()
         return critic_stats
