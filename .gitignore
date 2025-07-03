@@ -160,4 +160,4 @@ dmypy.json
 *.cb
 *.cb2
 
-hw3_sac_sac_humanoid_Humanoid-v4_reparametrize_s256_l3_alr0.0003_clr0.0003_b256_d0.99_t0.05_stu0.005_min/
+hw3_sac_sac_humanoid_Humanoid-v4_reparametrize*
