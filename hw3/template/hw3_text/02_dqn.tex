@@ -73,6 +73,23 @@ Implement the basic DQN algorithm. You'll implement an update for the $Q$-networ
     \item Run DQN on \verb|CartPole-v1|, but change the \verb|learning rate| to 0.05 (you can change this in the YAML config file). What happens to (a) the predicted $Q$-values, and (b) the critic error? Can you relate this to any topics from class or the analysis section of this homework?
 \end{itemize}
 
+\textbf{Result:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/dqn/cartpole.png}
+    \caption{CartPole DQN results}
+    \label{fig:cartpole_dqn}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/dqn/lunarlander.png}
+    \caption{Lunar Lander DQN results}
+    \label{fig:lunarlander}
+\end{figure}
+
+
+
 \subsection{Double Q-Learning}
 Let's try to stabilize learning. The double-Q trick avoids overestimation bias in the critic update by using two different networks to \textit{select} the next action $a'$ and to \textit{estimate} its value:
 \[a' = \textrm{arg}\max_{a'} Q_{\phi}(s', a')\]
@@ -99,6 +116,28 @@ Implement this functionality in \verb|dqn_agent.py|.
     \end{lstlisting}
     \item Plot the average training return (\verb|train_return|) and eval return (\verb|eval_return|) on the same axes. You may notice that they look very different early in training! Explain the difference.
 \end{itemize}
+
+\textbf{Result:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/dqn/lunarlander_doubleq.png}
+    \caption{Lunar Lander DQN with Double Q-learning results}
+    \label{fig:lunarlander_doubleq}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/dqn/mspacman.png}
+    \caption{MsPacman DQN eval\_return results}
+    \label{fig:mspacman}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/dqn/mspacman_train_return.png}
+    \caption{MsPacman DQN train\_return results}
+    \label{fig:mspacman_train_return}
+\end{figure}
 
 \subsection{Experimenting with Hyperparameters} Now let's analyze the sensitivity of Q-learning to hyperparameters. Choose one hyperparameter of your choice and run at least three other settings of this hyperparameter, in addition to the one used in Question 1, and plot all four values on the same graph. Your choice what you experiment with, but you should explain why you chose this hyperparameter in the caption. Create four config files in \verb|experiments/dqn/hyperparameters|, and look in \verb|cs285/env_configs/basic_dqn_config.py| to see which hyperparameters you're able to change. You can use any of the base YAML files as a reference.
 

@@ -53,6 +53,15 @@ In practice, we stabilize learning by using a separate \textit{target network} $
 
 \textbf{Deliverables}: None, once the critic is training as expected you can move on to the next section!
 
+\textbf{Result}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/sanity_pendulum_qvalues.png}
+    \caption{Pendulum SAC Q-values}
+    \label{fig:pendulum_sac_qvalues}
+\end{figure}
+
 \subsubsection{Entropy Bonus and Soft Actor-Critic}
 In DQN, we used an $\epsilon$-greedy strategy to decide which action to take at a given time. In continuous spaces, we have several options for generating exploration noise.
 
@@ -80,6 +89,14 @@ Note that maximizing entropy $\mathcal{H}(\pi_\theta) = -\mathbb{E}[\log \pi_\th
     If your logged entropy is higher than this, or significantly lower, you have a bug.
 \end{itemize}
 
+\textbf{Result}:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/sanity_pendulum_with_soft.png}
+    \caption{Pendulum SAC results with entropy bonus}
+    \label{fig:pendulum_sac}
+\end{figure}
+
 \subsubsection{Actor with REINFORCE}
 We can use the same REINFORCE gradient estimator that we used in our policy gradients algorithms to update our actor in actor-critic algorithms! We want to compute:
 \[\nabla_\theta\mathbb{E}_{s \sim \mathcal{D}, a \sim \pi_\theta(a|s)}\left[Q(s, a)\right]\]
@@ -104,6 +121,21 @@ Note that the actions $a$ are sampled from $\pi_\theta$, and we do \textbf{not} 
     \item Train another agent with \verb|halfcheetah_reinforce_10.yaml|. This configuration takes many samples from the actor for computing the REINFORCE gradient (we'll call this REINFORCE-10, and the single-sample version REINFORCE-1). Plot the results (evaluation return over time) on the same axes as the single-sample REINFORCE. Compare and explain your results.
 \end{itemize}
 
+\textbf{Result}:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/sanity_reinforce_invertPendulum.png}
+    \caption{Inverted Pendulum REINFORCE results}
+    \label{fig:inverted_pendulum_reinforce}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/half_cheetah_reinforce1_and_10.png}
+    \caption{Half Cheetah REINFORCE results}
+    \label{fig:half_cheetah_reinforce}
+\end{figure}
+
 \subsubsection{Actor with REPARAMETRIZE}
 REINFORCE works quite well with many samples, but particularly in high-dimensional action spaces, it starts to require a lot of samples to give low variance. We can improve this by using the reparametrized gradient. Parametrize $\pi_\theta$ as $\mu_\theta(s) + \sigma_\theta(s)\epsilon$, where $\epsilon$ is normally distributed. Then we can write:
 \[\nabla_\theta\mathbb{E}_{s \sim \mathcal{D}, a \sim \pi_\theta(a|s)}\left[Q(s, a)\right] = \nabla_\theta\mathbb{E}_{s \sim \mathcal{D}, \epsilon \sim \mathcal{N}}\left[Q(s, \mu_\theta(s) + \sigma_\theta(s)\epsilon))\right] = \mathbb{E}_{s \sim \mathcal{D}, \epsilon \sim \mathcal{N}}\left[\nabla_\theta Q(s, \mu_\theta(s) + \sigma_\theta(s)\epsilon))\right]\]
@@ -127,6 +159,22 @@ This gradient estimator often gives a much lower variance, so it can be used wit
     \item Train an agent for the \verb|Humanoid-v4| environment with \verb|humanoid_sac.yaml| and plot results.
 \end{itemize}
 
+\textbf{Result}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/sanity_reparametrize_invertPendulum.png}
+    \caption{Inverted Pendulum REPARAMETRIZE results}
+    \label{fig:inverted_pendulum_reparametrize}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/half_cheetah_reinforce1_and_10_and_reparametrize.png}
+    \caption{Half Cheetah REINFORCE and REPARAMETRIZE results}
+    \label{fig:half_cheetah_reparametrize}
+\end{figure}
+
 \subsubsection{Stabilizing Target Values}
 As in DQN, the target $Q$ with a single critic exhibits \textit{overestimation bias}! There are a few commonly-used strategies to combat this:
 \begin{itemize}
@@ -144,3 +192,26 @@ Implement double-$Q$ and clipped double-$Q$ in the \verb|q_backup_strategy| func
     \item Run single-$Q$, double-$Q$, and clipped double-$Q$ on \verb|Hopper-v4| using the corresponding configuration files. Which one works best? Plot the logged \verb|eval_return| from each of them as well as \verb|q_values|. Discuss how these results relate to overestimation bias.
     \item Pick the best configuration (single-$Q$/double-$Q$/clipped double-$Q$, or REDQ if you implement it) and run it on \verb|Humanoid-v4| using \verb|humanoid.yaml| (edit the config to use the best option). You can truncate it after 500K environment steps. If you got results from the humanoid environment in the last homework, plot them together with environment steps on the $x$-axis and evaluation return on the $y$-axis. Otherwise, we will provide a humanoid log file that you can use for comparison. How do the off-policy and on-policy algorithms compare in terms of sample efficiency? \textit{Note: if you'd like to run training to completion (5M steps), you should get a proper, walking humanoid! You can run with videos enabled by using \texttt{-nvid 1}. If you run with videos, you can strip videos from the logs for submission with \href{https://gist.github.com/kylestach/e9964f5f34ee74367547dec83eaf5fae}{this script}.}
 \end{itemize}
+
+\textbf{Result}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/hopper.png}
+    \caption{Hopper SAC results}
+    \label{fig:hopper_sac}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/sac/humanoid.png}
+    \caption{Humanoid SAC results}
+    \label{fig:humanoid_sac}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{imgs/sac/humanoid_sim.png}
+    \caption{Humanoid SAC simulation results}
+    \label{fig:humanoid_sac_sim}
+\end{figure}
